@@ -9,7 +9,7 @@
     "dev": "nodemon src/index.ts"
   },
   "author": "Theo Failenschmid",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@prisma/client": "^4.4.0",
     "axios": "^1.0.0",
