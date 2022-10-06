@@ -25,6 +25,20 @@ const routes: RouteProps[] = [
     action: "get",
     //permission: Permissions.default,
   },
+  {
+    method: "POST",
+    route: "/users",
+    controller: UserController,
+    action: "create",
+    //permission: Permissions.default,
+  },
+  {
+    method: "POST",
+    route: "/login",
+    controller: UserController,
+    action: "login",
+    //permission: Permissions.default,
+  },
 ];
 
 export default routes;
