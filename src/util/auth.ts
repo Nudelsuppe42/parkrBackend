@@ -12,10 +12,13 @@ async function createUser(email: string, username: string, password: string) {
   )
     return { error: "Not a valid email address" };
   const hashedPassword = await hash(password);
-  prisma.user.create({ data: { email, password: hashedPassword, username } });
+  const apiKey = await generateApiKey();
+  prisma.user.create({
+    data: { email, password: hashedPassword, username, apiKey: apiKey.apiKey },
+  });
 }
 
-async function apiKey() {
+async function generateApiKey() {
   const k = crypto.randomUUID();
   const h = await hash(k);
 
