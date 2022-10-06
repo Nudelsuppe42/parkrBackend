@@ -56,11 +56,11 @@ async function check(toCheck: string, hash: string) {
   return bcrypt.compare(toCheck, hash);
 }
 
-function sanitize(toSanitize: any) {
+export function sanitize(toSanitize: any) {
   var res = JSON.parse(JSON.stringify(toSanitize));
   res.apiKey = undefined;
   res.password = undefined;
   return res;
 }
 
-export default { createUser, loginUser, generateApiKey, hash, check, sanitize };
+export default { createUser, loginUser, generateApiKey, hash, check };

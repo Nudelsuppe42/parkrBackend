@@ -22,7 +22,7 @@ const routes: RouteProps[] = [
     method: "GET",
     route: "/users",
     controller: UserController,
-    action: "get",
+    action: "getAll",
     //permission: Permissions.default,
   },
   {
@@ -37,6 +37,13 @@ const routes: RouteProps[] = [
     route: "/login",
     controller: UserController,
     action: "login",
+    //permission: Permissions.default,
+  },
+  {
+    method: "POST",
+    route: "/users/:id/delete",
+    controller: UserController,
+    action: "delete",
     //permission: Permissions.default,
   },
 ];
