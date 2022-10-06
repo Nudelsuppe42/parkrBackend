@@ -3,22 +3,46 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id        String      @id @unique @default(uuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now())
+  email     String      @unique
+  username  String
+  password  String
+  apiKey    String      @unique
+  vehicle   UserVehicle @relation(fields: [vehicleId], references: [id])
+  vehicleId String      @unique
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+model UserVehicle {
+  id           String      @id @default(uuid())
+  user         User?
+  type         VehicleType @relation(fields: [typeId], references: [id])
+  typeId       String
+  length       Int // In cm
+  width        Int // In cm
+  licensePlate String      @unique
+}
+
+model VehicleType {
+  id          String        @id @unique
+  name        String
+  UserVehicle UserVehicle[]
+}
+
+model ServiceStation {
+  id       String @id @unique
+  name     String
+  address  String
+  location Json // ["",""]
+  area     Json // [["",""],["",""],["",""]]
+  aviable  Int
+  reserved Int
+  total    Int
+  services Json // ["","",""]
 }

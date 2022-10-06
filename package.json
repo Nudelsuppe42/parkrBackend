@@ -4,7 +4,7 @@
   "description": "The Backend of Parkr",
   "main": "src/index.ts",
   "scripts": {
-    "prisma": "prisma studio",
+    "prisma": "prisma migrate dev --name init && prisma studio",
     "serve": "node src/index.ts",
     "dev": "nodemon src/index.ts"
   },
