@@ -11,7 +11,7 @@ import routes from "./routes";
 const PORT = process.env.PORT || 8080;
 
 logger.debug("Connecting to database...");
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 
 logger.debug("Loading middleware...");
 const app = express();
@@ -21,7 +21,7 @@ app.use(cors());
 
 logger.debug("Registering routes...");
 routes.forEach((route) => {
-  (app as any)[route.method](
+  (app as any)[route.method.toLowerCase()](
     route.route,
     async (req: Request, res: Response, next: Function) => {
       logger.http(`${req.method} ${req.path}$`);
@@ -44,9 +44,9 @@ routes.forEach((route) => {
   );
 });
 app.get("*", (req: Request, res: Response) => {
-  res.send({"test":"test"});
+  res.send({ test: "test" });
 });
 
 app.listen(PORT, () => {
-    logger.info(`Listening on port ${PORT}`)
-})
+  logger.info(`Listening on port ${PORT}`);
+});
