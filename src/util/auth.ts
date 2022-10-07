@@ -12,13 +12,13 @@ async function createUser(email: string, username: string, password: string) {
     ) ||
     (await prisma.user.findUnique({ where: { email } })) != null
   )
-    return { error: "Not a valid email address" };
+    return "Not a valid email address";
   const hashedPassword = await hash(password);
   const apiKey = await generateApiKey();
   const user = await prisma.user.create({
     data: { email, password: hashedPassword, username, apiKey: apiKey.apiKey },
   });
-  return { error: false, result: sanitize(user) };
+  return sanitize(user);
 }
 
 async function loginUser(email: string, password: string) {
@@ -27,20 +27,17 @@ async function loginUser(email: string, password: string) {
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     )
   )
-    return { error: "Not a valid email address" };
+    return "Not a valid email address";
 
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) return { error: "No user found" };
 
   if (await check(password, user.password)) {
-    return {
-      error: false,
-      result: { login: true, user: sanitize(user), apiKey: user.apiKey },
-    };
+    return { login: true, user: sanitize(user), apiKey: user.apiKey };
   }
 
-  return { error: "Wrong Password" };
+  return "Wrong Password";
 }
 
 async function generateApiKey() {

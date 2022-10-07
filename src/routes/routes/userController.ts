@@ -17,7 +17,7 @@ export class UserController {
       const res = await auth.createUser(email, username, password);
       return res;
     } else {
-      return { error: "Not enought fields" };
+      return "Not enought fields";
     }
   }
 
@@ -25,9 +25,9 @@ export class UserController {
     const { id } = request.params;
     if (id && (await prisma.user.findUnique({ where: { id } }))) {
       const res = await prisma.user.delete({ where: { id } });
-      return { error: false, result: { user: sanitize(res), deleted: true } };
+      return { user: sanitize(res), deleted: true };
     } else {
-      return { error: "Not enought fields" };
+      return "Not enought fields";
     }
   }
   async login(request: Request, response: Response, next: NextFunction) {
@@ -36,7 +36,7 @@ export class UserController {
       const res = await auth.loginUser(email, password);
       return res;
     } else {
-      return { error: "Not enought fields" };
+      return "Not enought fields";
     }
   }
 }
