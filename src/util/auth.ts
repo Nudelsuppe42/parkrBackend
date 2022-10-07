@@ -16,9 +16,9 @@ async function createUser(email: string, username: string, password: string) {
   const hashedPassword = await hash(password);
   const apiKey = await generateApiKey();
   const user = await prisma.user.create({
-    data: { email, password: hashedPassword, username, apiKey: apiKey.apiKey },
+    data: { email, password: hashedPassword, username, apiKey: apiKey },
   });
-  return sanitize(user);
+  return { user: sanitize(user), apiKey: apiKey };
 }
 
 async function loginUser(email: string, password: string) {
@@ -34,17 +34,14 @@ async function loginUser(email: string, password: string) {
   if (!user) return { error: "No user found" };
 
   if (await check(password, user.password)) {
-    return { login: true, user: sanitize(user), apiKey: user.apiKey };
+    return { login: true, user: sanitize(user) };
   }
 
   return "Wrong Password";
 }
 
 async function generateApiKey() {
-  const k = crypto.randomUUID();
-  const h = await hash(k);
-
-  return { apiKey: k, hashed: h };
+  return crypto.randomUUID();
 }
 
 async function hash(toHash: string, rounds?: number) {

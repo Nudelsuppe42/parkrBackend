@@ -15,6 +15,7 @@ model User {
   username  String
   password  String
   apiKey    String       @unique
+  admin     Boolean      @default(false)
   vehicle   UserVehicle? @relation(fields: [vehicleId], references: [id])
   vehicleId String?      @unique
 }

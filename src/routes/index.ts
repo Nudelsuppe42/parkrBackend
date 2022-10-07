@@ -5,7 +5,7 @@ interface RouteProps {
   route: string;
   controller: any;
   action: string;
-  //permission: any,
+  auth: "admin" | "user" | "anonym";
 }
 
 const routes: RouteProps[] = [
@@ -23,28 +23,28 @@ const routes: RouteProps[] = [
     route: "/users",
     controller: UserController,
     action: "getAll",
-    //permission: Permissions.default,
+    auth: "admin",
   },
   {
     method: "POST",
     route: "/users",
     controller: UserController,
     action: "create",
-    //permission: Permissions.default,
+    auth: "anonym",
   },
   {
     method: "POST",
     route: "/login",
     controller: UserController,
     action: "login",
-    //permission: Permissions.default,
+    auth: "anonym",
   },
   {
     method: "POST",
     route: "/users/:id/delete",
     controller: UserController,
     action: "delete",
-    //permission: Permissions.default,
+    auth: "admin",
   },
 ];
 

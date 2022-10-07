@@ -3,6 +3,7 @@ import * as bodyParser from "body-parser";
 import express, { Request, Response } from "express";
 
 import { PrismaClient } from "@prisma/client";
+import auth from "./util/auth";
 import cors from "cors";
 import helmet from "helmet";
 import logger from "./util/logger";
@@ -25,8 +26,23 @@ routes.forEach((route) => {
     route.route,
     async (req: Request, res: Response, next: Function) => {
       logger.http(`${req.method} ${req.path}`);
+      const user = await prisma.user.findUnique({
+        select: { apiKey: true, admin: true, id: true },
+        where: { apiKey: req.headers.apikey?.toString() || "" },
+      });
 
-      // TODO: permissions
+      if (route.auth != "anonym") {
+        if (!user) {
+          res.send("Invalid or missing API-Key");
+          logger.info("Requested with invalid API-Key");
+          return;
+        }
+        if (route.auth == "admin" && !user.admin) {
+          res.send("No permission");
+          logger.info("Requested without Permission");
+          return;
+        }
+      }
 
       const result = new (route.controller as any)()[route.action](
         req,
