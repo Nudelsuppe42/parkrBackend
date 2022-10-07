@@ -9,7 +9,8 @@ async function createUser(email: string, username: string, password: string) {
   if (
     !email.match(
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    )
+    ) ||
+    (await prisma.user.findUnique({ where: { email } })) != null
   )
     return { error: "Not a valid email address" };
   const hashedPassword = await hash(password);
