@@ -8,7 +8,7 @@ import { prisma } from "../..";
 export class UserController {
   async getAll(request: Request, response: Response, next: NextFunction) {
     const users = await prisma.user.findMany();
-    return users;
+    return sanitize(users);
   }
 
   async create(request: Request, response: Response, next: NextFunction) {

@@ -2,6 +2,7 @@
 
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import logger from "./logger";
 import { prisma } from "..";
 
 async function createUser(email: string, username: string, password: string) {
@@ -58,6 +59,7 @@ async function check(toCheck: string, hash: string) {
 
 export function sanitize(toSanitize: any) {
   var res = JSON.parse(JSON.stringify(toSanitize));
+  if (Array.isArray(res)) res = res.map((r) => sanitize(r));
   res.apiKey = undefined;
   res.password = undefined;
   return res;
