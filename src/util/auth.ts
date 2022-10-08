@@ -52,11 +52,24 @@ async function check(toCheck: string, hash: string) {
   return bcrypt.compare(toCheck, hash);
 }
 
-export function sanitize(toSanitize: any) {
+export function sanitize(
+  toSanitize: any,
+  options?: { permissions?: boolean; id?: boolean; relations?: boolean }
+) {
   var res = JSON.parse(JSON.stringify(toSanitize));
-  if (Array.isArray(res)) res = res.map((r) => sanitize(r));
+  if (Array.isArray(res)) res = res.map((r) => sanitize(r, options));
   res.apiKey = undefined;
   res.password = undefined;
+  if (options?.permissions) {
+    res.admin = undefined;
+  }
+  if (options?.id) {
+    res.id = undefined;
+  }
+  if (options?.relations) {
+    res.vehicleId = undefined;
+    res.vehicle = undefined;
+  }
   return res;
 }
 

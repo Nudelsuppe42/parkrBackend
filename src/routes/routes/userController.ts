@@ -42,6 +42,31 @@ export class UserController {
     }
   }
 
+  async update(request: Request, response: Response, next: NextFunction) {
+    const user = await prisma.user.findUnique({
+      select: { apiKey: true, admin: true, id: true },
+      where: { apiKey: request.headers.apikey?.toString() || "" },
+    });
+    if (!user) {
+      logger.info("Requested with invalid API-Key");
+      return "Invalid or missing API-Key";
+    }
+    if (!user.admin && user.id != request.params.id) {
+      logger.info("Requested without Permission");
+      return "No permission";
+    }
+
+    const resUser = await prisma.user.update({
+      where: { id: request.params.id == "me" ? user.id : request.params.id },
+      data: sanitize(request.body, {
+        permissions: !user.admin,
+        id: true,
+        relations: true,
+      }),
+    });
+    return sanitize(resUser);
+  }
+
   async delete(request: Request, response: Response, next: NextFunction) {
     const { id } = request.params;
     if (id && (await prisma.user.findUnique({ where: { id } }))) {
