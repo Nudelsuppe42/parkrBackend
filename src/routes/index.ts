@@ -40,6 +40,13 @@ const routes: RouteProps[] = [
     auth: "anonym",
   },
   {
+    method: "GET",
+    route: "/users/:id",
+    controller: UserController,
+    action: "get",
+    auth: "anonym", // Handler later
+  },
+  {
     method: "POST",
     route: "/users/:id/delete",
     controller: UserController,

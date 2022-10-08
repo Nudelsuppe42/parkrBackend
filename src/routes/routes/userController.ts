@@ -11,6 +11,13 @@ export class UserController {
     return sanitize(users);
   }
 
+  async get(request: Request, response: Response, next: NextFunction) {
+    const user = await prisma.user.findFirst({
+      where: { id: request.params.id },
+    });
+    return sanitize(user);
+  }
+
   async create(request: Request, response: Response, next: NextFunction) {
     const { email, username, password } = request.body;
     if (email && username && password) {
@@ -30,6 +37,7 @@ export class UserController {
       return "Not enought fields";
     }
   }
+
   async login(request: Request, response: Response, next: NextFunction) {
     const { email, password } = request.body;
     if (email && password) {
