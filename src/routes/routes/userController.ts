@@ -3,6 +3,7 @@ import * as index from "../index";
 import { NextFunction, Request, Response } from "express";
 import auth, { sanitize } from "../../util/auth";
 
+import logger from "../../util/logger";
 import { prisma } from "../..";
 
 export class UserController {
@@ -12,10 +13,23 @@ export class UserController {
   }
 
   async get(request: Request, response: Response, next: NextFunction) {
-    const user = await prisma.user.findFirst({
-      where: { id: request.params.id },
+    const user = await prisma.user.findUnique({
+      select: { apiKey: true, admin: true, id: true },
+      where: { apiKey: request.headers.apikey?.toString() || "" },
     });
-    return sanitize(user);
+    if (!user) {
+      logger.info("Requested with invalid API-Key");
+      return "Invalid or missing API-Key";
+    }
+    if (!user.admin && user.id != request.params.id) {
+      logger.info("Requested without Permission");
+      return "No permission";
+    }
+
+    const resUser = await prisma.user.findFirst({
+      where: { id: request.params.id == "me" ? user.id : request.params.id },
+    });
+    return sanitize(resUser);
   }
 
   async create(request: Request, response: Response, next: NextFunction) {

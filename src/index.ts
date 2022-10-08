@@ -50,7 +50,6 @@ routes.forEach((route) => {
         next
       );
       if (result instanceof Promise) {
-        console.log("tt");
         result.then((result) => {
           if (result !== null && result !== undefined) {
             if (typeof result === "string") {
