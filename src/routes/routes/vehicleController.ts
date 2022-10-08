@@ -5,13 +5,9 @@ import auth, { sanitize } from "../../util/auth";
 
 import logger from "../../util/logger";
 import { prisma } from "../..";
+import { userInfo } from "os";
 
-export class UserController {
-  async getAll(request: Request, response: Response, next: NextFunction) {
-    const users = await prisma.user.findMany();
-    return sanitize(users);
-  }
-
+export class VehicleController {
   async get(request: Request, response: Response, next: NextFunction) {
     const user = await prisma.user.findUnique({
       select: { apiKey: true, admin: true, id: true },
@@ -28,14 +24,48 @@ export class UserController {
 
     const resUser = await prisma.user.findFirst({
       where: { id: request.params.id == "me" ? user.id : request.params.id },
+      include: { vehicle: true },
     });
-    return sanitize(resUser);
+    return resUser?.vehicle ? sanitize(resUser?.vehicle) : {};
   }
 
   async create(request: Request, response: Response, next: NextFunction) {
-    const { email, username, password } = request.body;
-    if (email && username && password) {
-      const res = await auth.createUser(email, username, password);
+    const { type, length, width, licensePlate } = request.body;
+    const user = await prisma.user.findUnique({
+      select: { apiKey: true, admin: true, id: true },
+      where: { apiKey: request.headers.apikey?.toString() || "" },
+    });
+    if (!user) {
+      logger.info("Requested with invalid API-Key");
+      return "Invalid or missing API-Key";
+    }
+    if (!user.admin && user.id != request.params.id) {
+      logger.info("Requested without Permission");
+      return "No permission";
+    }
+
+    const resUser = await prisma.user.findFirst({
+      where: { id: request.params.id == "me" ? user.id : request.params.id },
+      include: { vehicle: true },
+    });
+    if (resUser?.vehicle != null) {
+      return "User already has a vehicle assigned";
+    }
+
+    if (type && length && width && licensePlate && resUser) {
+      const res = await prisma.userVehicle
+        .create({
+          data: {
+            width,
+            length,
+            licensePlate,
+            type: { connect: { id: type } },
+            user: { connect: { id: resUser.id } },
+          },
+        })
+        .catch((r: any) => {
+          if (r.code === "P2002") return "License Plate already in use";
+        });
       return res;
     } else {
       return "Not enought fields";

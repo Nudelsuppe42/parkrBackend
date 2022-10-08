@@ -1,4 +1,5 @@
 import { UserController } from "./routes/UserController";
+import { VehicleController } from "./routes/vehicleController";
 
 interface RouteProps {
   method: string;
@@ -59,6 +60,20 @@ const routes: RouteProps[] = [
     controller: UserController,
     action: "delete",
     auth: "admin",
+  },
+  {
+    method: "GET",
+    route: "/users/:id/vehicle",
+    controller: VehicleController,
+    action: "get",
+    auth: "anonym", // Handler later
+  },
+  {
+    method: "POST",
+    route: "/users/:id/vehicle/create",
+    controller: VehicleController,
+    action: "create",
+    auth: "anonym", // Handler later
   },
 ];
 
