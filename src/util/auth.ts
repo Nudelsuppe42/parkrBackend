@@ -14,11 +14,11 @@ async function createUser(email: string, username: string, password: string) {
   )
     return "Not a valid email address";
   const hashedPassword = await hash(password);
-  const apiKey = await generateApiKey();
+  //const apiKey = await generateApiKey();
   const user = await prisma.user.create({
-    data: { email, password: hashedPassword, username, apiKey: apiKey },
+    data: { email, password: hashedPassword, username },
   });
-  return { user: sanitize(user), apiKey: apiKey };
+  return { user: sanitize(user) };
 }
 
 async function loginUser(email: string, password: string) {
@@ -38,10 +38,6 @@ async function loginUser(email: string, password: string) {
   }
 
   return "Wrong Password";
-}
-
-async function generateApiKey() {
-  return crypto.randomUUID();
 }
 
 async function hash(toHash: string, rounds?: number) {
