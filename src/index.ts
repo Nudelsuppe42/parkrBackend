@@ -33,12 +33,12 @@ routes.forEach((route) => {
 
       if (route.auth != "anonym") {
         if (!user) {
-          res.send("Invalid or missing API-Key");
+          res.send({ error: "Invalid or missing API-Key" });
           logger.info("Requested with invalid API-Key");
           return;
         }
         if (route.auth == "admin" && !user.admin) {
-          res.send("No permission");
+          res.status(403).send({ error: "No permission" });
           logger.info("Requested without Permission");
           return;
         }
