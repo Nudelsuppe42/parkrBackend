@@ -1,3 +1,4 @@
+import { ServiceStationController } from "./routes/serviceStationController";
 import { UserController } from "./routes/UserController";
 import { VehicleController } from "./routes/vehicleController";
 
@@ -45,14 +46,14 @@ const routes: RouteProps[] = [
     route: "/users/:id",
     controller: UserController,
     action: "get",
-    auth: "specific", // Handler later
+    auth: "specific",
   },
   {
     method: "POST",
     route: "/users/:id",
     controller: UserController,
     action: "update",
-    auth: "specific", // Handler later
+    auth: "specific",
   },
   {
     method: "POST",
@@ -66,21 +67,42 @@ const routes: RouteProps[] = [
     route: "/users/:id/vehicle",
     controller: VehicleController,
     action: "get",
-    auth: "specific", // Handler later
+    auth: "specific",
   },
   {
     method: "POST",
     route: "/users/:id/vehicle/create",
     controller: VehicleController,
     action: "create",
-    auth: "specific", // Handler later
+    auth: "specific",
   },
   {
     method: "POST",
     route: "/users/:id/vehicle",
     controller: VehicleController,
     action: "update",
-    auth: "specific", // Handler later
+    auth: "specific",
+  },
+  {
+    method: "GET",
+    route: "/stations",
+    controller: ServiceStationController,
+    action: "getAll",
+    auth: "anonym",
+  },
+  {
+    method: "GET",
+    route: "/stations/:vid",
+    controller: ServiceStationController,
+    action: "get",
+    auth: "anonym",
+  },
+  {
+    method: "POST",
+    route: "/stations",
+    controller: ServiceStationController,
+    action: "create",
+    auth: "admin",
   },
 ];
 

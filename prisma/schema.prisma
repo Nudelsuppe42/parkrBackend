@@ -36,13 +36,13 @@ model VehicleType {
 }
 
 model ServiceStation {
-  id       String @id @unique
+  id       String @id @unique @default(uuid())
   name     String
   address  String
   location Json // ["",""]
   area     Json // [["",""],["",""],["",""]]
-  aviable  Int
-  reserved Int
-  total    Int
+  aviable  Json
+  reserved Json
+  total    Json
   services Json // ["","",""]
 }
