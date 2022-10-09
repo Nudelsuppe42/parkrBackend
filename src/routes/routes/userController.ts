@@ -33,23 +33,15 @@ export class UserController {
   async update(request: Request, response: Response, next: NextFunction) {
     const id = request.params.id;
 
-    auth.verifyToken(
-      request,
-      response,
-      "admin",
-      async () => {
-        const resUser = await prisma.user.update({
-          where: { id },
-          data: sanitize(request.body, {
-            permissions: true,
-            id: true,
-            relations: true,
-          }),
-        });
-        return sanitize(resUser);
-      },
-      id
-    );
+    const resUser = await prisma.user.update({
+      where: { id },
+      data: sanitize(request.body, {
+        permissions: true,
+        id: true,
+        relations: true,
+      }),
+    });
+    return sanitize(resUser);
   }
 
   async delete(request: Request, response: Response, next: NextFunction) {
