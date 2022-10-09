@@ -9,92 +9,84 @@ import { userInfo } from "os";
 
 export class VehicleController {
   async get(request: Request, response: Response, next: NextFunction) {
-    const user = await prisma.user.findUnique({
-      select: { apiKey: true, admin: true, id: true },
-      where: { apiKey: request.headers.apikey?.toString() || "" },
-    });
-    if (!user) {
-      logger.info("Requested with invalid API-Key");
-      return "Invalid or missing API-Key";
-    }
-    if (!user.admin && user.id != request.params.id) {
-      logger.info("Requested without Permission");
-      return "No permission";
-    }
+    const id = request.params.id;
 
-    const resUser = await prisma.user.findFirst({
-      where: { id: request.params.id == "me" ? user.id : request.params.id },
-      include: { vehicle: true },
-    });
-    return resUser?.vehicle ? sanitize(resUser?.vehicle) : {};
+    auth.verifyToken(
+      request,
+      response,
+      "admin",
+      async () => {
+        const resUser = await prisma.user.findFirst({
+          where: { id },
+          include: { vehicle: true },
+        });
+        return resUser?.vehicle ? sanitize(resUser?.vehicle) : {};
+      },
+      id
+    );
   }
 
   async create(request: Request, response: Response, next: NextFunction) {
     const { type, length, width, licensePlate } = request.body;
-    const user = await prisma.user.findUnique({
-      select: { apiKey: true, admin: true, id: true },
-      where: { apiKey: request.headers.apikey?.toString() || "" },
-    });
-    if (!user) {
-      logger.info("Requested with invalid API-Key");
-      return "Invalid or missing API-Key";
-    }
-    if (!user.admin && user.id != request.params.id) {
-      logger.info("Requested without Permission");
-      return "No permission";
-    }
 
-    const resUser = await prisma.user.findFirst({
-      where: { id: request.params.id == "me" ? user.id : request.params.id },
-      include: { vehicle: true },
-    });
-    if (resUser?.vehicle != null) {
-      return "User already has a vehicle assigned";
-    }
+    const id = request.params.id;
 
-    if (type && length && width && licensePlate && resUser) {
-      const res = await prisma.userVehicle
-        .create({
-          data: {
-            width,
-            length,
-            licensePlate,
-            type: { connect: { id: type } },
-            user: { connect: { id: resUser.id } },
-          },
-        })
-        .catch((r: any) => {
-          if (r.code === "P2002") return "License Plate already in use";
+    auth.verifyToken(
+      request,
+      response,
+      "admin",
+      async () => {
+        const resUser = await prisma.user.findFirst({
+          where: { id },
+          include: { vehicle: true },
         });
-      return res;
-    } else {
-      return "Not enought fields";
-    }
+        if (resUser?.vehicle != null) {
+          return "User already has a vehicle assigned";
+        }
+
+        if (type && length && width && licensePlate && resUser) {
+          const res = await prisma.userVehicle
+            .create({
+              data: {
+                width,
+                length,
+                licensePlate,
+                type: { connect: { id: type } },
+                user: { connect: { id: resUser.id } },
+              },
+            })
+            .catch((r: any) => {
+              if (r.code === "P2002") return "License Plate already in use";
+            });
+          return res;
+        } else {
+          return "Not enought fields";
+        }
+      },
+      id
+    );
   }
 
   async update(request: Request, response: Response, next: NextFunction) {
-    const user = await prisma.user.findUnique({
-      select: { apiKey: true, admin: true, id: true },
-      where: { apiKey: request.headers.apikey?.toString() || "" },
-    });
-    if (!user) {
-      logger.info("Requested with invalid API-Key");
-      return "Invalid or missing API-Key";
-    }
-    if (!user.admin && user.id != request.params.id) {
-      logger.info("Requested without Permission");
-      return "No permission";
-    }
+    const id = request.params.id;
 
-    const resUser = await prisma.user.update({
-      where: { id: request.params.id == "me" ? user.id : request.params.id },
-      data: sanitize(request.body, {
-        permissions: !user.admin,
-        id: true,
-        relations: true,
-      }),
-    });
-    return sanitize(resUser);
+    auth.verifyToken(
+      request,
+      response,
+      "admin",
+      async () => {
+        const resUser = await prisma.user.update({
+          where: { id },
+          data: sanitize(request.body, {
+            permissions: true,
+            id: true,
+            relations: true,
+          }),
+        });
+        return sanitize(resUser);
+      },
+      id
+    );
   }
 
   async delete(request: Request, response: Response, next: NextFunction) {

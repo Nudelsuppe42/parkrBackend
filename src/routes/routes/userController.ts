@@ -13,21 +13,9 @@ export class UserController {
   }
 
   async get(request: Request, response: Response, next: NextFunction) {
-    const user = await prisma.user.findUnique({
-      select: { apiKey: true, admin: true, id: true },
-      where: { apiKey: request.headers.apikey?.toString() || "" },
-    });
-    if (!user) {
-      logger.info("Requested with invalid API-Key");
-      return "Invalid or missing API-Key";
-    }
-    if (!user.admin && user.id != request.params.id) {
-      logger.info("Requested without Permission");
-      return "No permission";
-    }
-
+    const id = request.params.id;
     const resUser = await prisma.user.findFirst({
-      where: { id: request.params.id == "me" ? user.id : request.params.id },
+      where: { id },
     });
     return sanitize(resUser);
   }
@@ -43,28 +31,25 @@ export class UserController {
   }
 
   async update(request: Request, response: Response, next: NextFunction) {
-    const user = await prisma.user.findUnique({
-      select: { apiKey: true, admin: true, id: true },
-      where: { apiKey: request.headers.apikey?.toString() || "" },
-    });
-    if (!user) {
-      logger.info("Requested with invalid API-Key");
-      return "Invalid or missing API-Key";
-    }
-    if (!user.admin && user.id != request.params.id) {
-      logger.info("Requested without Permission");
-      return "No permission";
-    }
+    const id = request.params.id;
 
-    const resUser = await prisma.user.update({
-      where: { id: request.params.id == "me" ? user.id : request.params.id },
-      data: sanitize(request.body, {
-        permissions: !user.admin,
-        id: true,
-        relations: true,
-      }),
-    });
-    return sanitize(resUser);
+    auth.verifyToken(
+      request,
+      response,
+      "admin",
+      async () => {
+        const resUser = await prisma.user.update({
+          where: { id },
+          data: sanitize(request.body, {
+            permissions: true,
+            id: true,
+            relations: true,
+          }),
+        });
+        return sanitize(resUser);
+      },
+      id
+    );
   }
 
   async delete(request: Request, response: Response, next: NextFunction) {

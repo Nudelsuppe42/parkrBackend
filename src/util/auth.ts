@@ -1,5 +1,8 @@
 // https://blog.mergify.com/content/images/size/w1000/2022/06/2-2.png
 
+import { NextFunction, Request, Response } from "express";
+import jwt, { AUTH_SECRET } from "./jwt";
+
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import logger from "./logger";
@@ -34,7 +37,11 @@ async function loginUser(email: string, password: string) {
   if (!user) return { error: "No user found" };
 
   if (await check(password, user.password)) {
-    return { login: true, user: sanitize(user) };
+    return {
+      login: true,
+      user: sanitize(user),
+      apiKey: jwt.sign({ id: user.id }, AUTH_SECRET, { expiresIn: "24h" }),
+    };
   }
 
   return "Wrong Password";
@@ -46,6 +53,52 @@ async function hash(toHash: string, rounds?: number) {
 
 async function check(toCheck: string, hash: string) {
   return bcrypt.compare(toCheck, hash);
+}
+
+async function verifyToken(
+  req: Request,
+  res: Response,
+  permission: "anonym" | "admin" | "user",
+  next: any,
+  userId?: string
+) {
+  if (permission == "anonym") {
+    return next();
+  }
+
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) {
+    res.status(401).send({ error: "Unauthorized" });
+    return;
+  }
+
+  jwt.verify(token, AUTH_SECRET, async (err: any, auth: any) => {
+    if (err) {
+      if (err.name == "TokenExpiredError") {
+        res.status(403).send({ error: "Token expired" });
+        return;
+      }
+      res.status(403).send({ error: "Forbidden" });
+      return;
+    }
+    if (permission == "user") {
+      return next();
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: auth.id } });
+    if (user?.admin) {
+      return next();
+    }
+
+    if (userId) {
+      if (user?.id == userId) return next();
+    }
+
+    res.status(403).send({ error: "Forbidde2n" });
+    return;
+  });
 }
 
 export function sanitize(
@@ -69,4 +122,4 @@ export function sanitize(
   return res;
 }
 
-export default { createUser, loginUser, generateApiKey, hash, check };
+export default { createUser, loginUser, hash, check, verifyToken };
