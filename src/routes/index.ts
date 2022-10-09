@@ -6,7 +6,7 @@ interface RouteProps {
   route: string;
   controller: any;
   action: string;
-  auth: "admin" | "user" | "anonym";
+  auth: "admin" | "user" | "anonym" | "specific";
 }
 
 const routes: RouteProps[] = [
@@ -45,14 +45,14 @@ const routes: RouteProps[] = [
     route: "/users/:id",
     controller: UserController,
     action: "get",
-    auth: "anonym", // Handler later
+    auth: "specific", // Handler later
   },
   {
     method: "POST",
     route: "/users/:id",
     controller: UserController,
     action: "update",
-    auth: "anonym", // Handler later
+    auth: "specific", // Handler later
   },
   {
     method: "POST",
@@ -66,14 +66,14 @@ const routes: RouteProps[] = [
     route: "/users/:id/vehicle",
     controller: VehicleController,
     action: "get",
-    auth: "anonym", // Handler later
+    auth: "specific", // Handler later
   },
   {
     method: "POST",
     route: "/users/:id/vehicle/create",
     controller: VehicleController,
     action: "create",
-    auth: "anonym", // Handler later
+    auth: "specific", // Handler later
   },
 ];
 

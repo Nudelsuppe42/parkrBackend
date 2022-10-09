@@ -58,7 +58,7 @@ async function check(toCheck: string, hash: string) {
 async function verifyToken(
   req: Request,
   res: Response,
-  permission: "anonym" | "admin" | "user",
+  permission: "anonym" | "admin" | "user" | "specific",
   next: any,
   userId?: string
 ) {
@@ -92,7 +92,7 @@ async function verifyToken(
       return next();
     }
 
-    if (userId) {
+    if (userId && permission == "specific") {
       if (user?.id == userId) return next();
     }
 
