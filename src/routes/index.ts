@@ -75,6 +75,13 @@ const routes: RouteProps[] = [
     action: "create",
     auth: "specific", // Handler later
   },
+  {
+    method: "POST",
+    route: "/users/:id/vehicle",
+    controller: VehicleController,
+    action: "update",
+    auth: "specific", // Handler later
+  },
 ];
 
 export default routes;

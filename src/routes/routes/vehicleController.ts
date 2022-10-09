@@ -53,38 +53,30 @@ export class VehicleController {
   async update(request: Request, response: Response, next: NextFunction) {
     const id = request.params.id;
 
-    const resUser = await prisma.user.update({
+    const resVeh = await prisma.user.update({
       where: { id },
-      data: sanitize(request.body, {
-        permissions: true,
-        id: true,
-        relations: true,
-      }),
+      data: {
+        vehicle: {
+          update: sanitize(request.body, {
+            permissions: true,
+            id: true,
+            relations: true,
+            user: true,
+            licensePlate: true,
+          }),
+        },
+      },
+      include: {
+        vehicle: {
+          select: {
+            typeId: true,
+            length: true,
+            width: true,
+            licensePlate: true,
+          },
+        },
+      },
     });
-    return sanitize(resUser);
-  }
-
-  async delete(request: Request, response: Response, next: NextFunction) {
-    const { id } = request.params;
-    if (id && (await prisma.user.findUnique({ where: { id } }))) {
-      const resV = await prisma.user.update({
-        where: { id },
-        data: { vehicle: { delete: true } },
-      });
-      const resU = await prisma.user.delete({ where: { id } });
-      return { user: sanitize(resU), deleted: true };
-    } else {
-      return "Not enought fields";
-    }
-  }
-
-  async login(request: Request, response: Response, next: NextFunction) {
-    const { email, password } = request.body;
-    if (email && password) {
-      const res = await auth.loginUser(email, password);
-      return res;
-    } else {
-      return "Not enought fields";
-    }
+    return sanitize(resVeh.vehicle);
   }
 }

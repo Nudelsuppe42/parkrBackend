@@ -103,7 +103,13 @@ async function verifyToken(
 
 export function sanitize(
   toSanitize: any,
-  options?: { permissions?: boolean; id?: boolean; relations?: boolean }
+  options?: {
+    permissions?: boolean;
+    id?: boolean;
+    relations?: boolean;
+    user?: boolean;
+    licensePlate?: boolean;
+  }
 ) {
   var res = JSON.parse(JSON.stringify(toSanitize));
   if (Array.isArray(res)) res = res.map((r) => sanitize(r, options));
@@ -118,6 +124,12 @@ export function sanitize(
   if (options?.relations) {
     res.vehicleId = undefined;
     res.vehicle = undefined;
+  }
+  if (options?.user) {
+    res.user = undefined;
+  }
+  if (options?.licensePlate) {
+    res.licensePlate = undefined;
   }
   return res;
 }
