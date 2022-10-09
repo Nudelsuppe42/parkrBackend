@@ -56,7 +56,6 @@ app.listen(PORT, () => {
 function returnResult(result: any, res: Response) {
   if (result instanceof Promise) {
     result.then((result) => {
-      console.log(result);
       returnResult(result, res);
     });
   } else if (typeof result === "string") {
