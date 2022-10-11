@@ -104,6 +104,13 @@ const routes: RouteProps[] = [
     action: "create",
     auth: "admin",
   },
+  {
+    method: "GET",
+    route: "/stations/:lat/:lon",
+    controller: ServiceStationController,
+    action: "nearest",
+    auth: "anonym",
+  },
 ];
 
 export default routes;

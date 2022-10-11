@@ -1,6 +1,7 @@
 import * as index from "../index";
 
 import { NextFunction, Request, Response } from "express";
+import { closestStation, insideStation } from "../../util/area";
 
 import { prisma } from "../..";
 import { sanitize } from "../../util/auth";
@@ -39,5 +40,24 @@ export class ServiceStationController {
     } else {
       return "Not enought fields";
     }
+  }
+
+  async nearest(request: Request, response: Response, next: NextFunction) {
+    const stations = await prisma.serviceStation.findMany({
+      select: { id: true, location: true, name: true, area: true },
+    });
+    return {
+      stations: closestStation(
+        [parseFloat(request.params.lat), parseFloat(request.params.lon)],
+        stations
+      ),
+      insideStation:
+        request.query.inside === "true"
+          ? insideStation(
+              [parseFloat(request.params.lat), parseFloat(request.params.lon)],
+              stations
+            )
+          : {},
+    };
   }
 }
